@@ -11,52 +11,49 @@
 - Not running as systemd service atm
 - Using debians openjdk
 
-# TODO
-
-## WEBUI not working
-- For some reason web ui is not working
-
 ## Postgresql
-- Allow normal socket connection
-- Configure sonarqube to use postgresql
-- Hide password somehow on machine (unix socket works with delegation but normal socket wont i think)
-- Create scripts to backup/restore when switching machines
+- Database `sonar` has been created and user `sonar` has access to it
+    - Connection can be tested with VSCode
+- There is some issue when we configure database to use elasticsearch breaks and sonarqube fails to start
+    - This is why we are using H2 atm
 
-## Projects
-- Add AJE
-
-# Java
+## Java
 ```bash
 sudo apt install openjdk-17-jdk
 
 # .bash_aliases
+
+# Java home
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ```
 
 # Path setup
 ```bash
-# .bash_aliases add sonarqube path
-export PATH=$PATH:/usr/local/bin/sonarqube/bin/linux-x86-64
+# .bash_aliases
+
+# Sonar home
+export SONAR_HOME=/usr/local/bin/sonarqube
+# Sonar path
+export PATH=$PATH:$SONAR_HOME/bin/linux-x86-64
 ```
 
 # Starting
 ```bash
 # start
 sonar.sh start
-# clean logs
+# clean logs, data & temp
 sonar-clean-logs.sh
 ```
 
 # creating user, role & db
 ```bash
 # set access to sonarqube folder
-sudo chown -R antti:sonar /usr/local/bin/sonarqube
+sudo chown -R antti:antti /usr/local/bin/sonarqube
 
 # create role and db
 sudo -u postgres psql -c "CREATE ROLE sonar LOGIN PASSWORD 'sonar';"
 sudo -u postgres createdb -O sonar sonar
-# this seems ot work fine and I can login as sonar to the db from vscode
-# but sonarqube fails as elasticsearch does not work...
+# works fine, testted in VSCode
 ```
 
 # sonar.properties
@@ -86,6 +83,7 @@ sonar.path.data=data
 sonar.path.temp=temp
 sonar.telemetry.enable=false
 
+# TODO: Fix elasticsearch issue with postgresql
 # Database, works fine from VSCode but elasticsearch fails to start
 #sonar.jdbc.username=sonar
 #sonar.jdbc.password=sonar
